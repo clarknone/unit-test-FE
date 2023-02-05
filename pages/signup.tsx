@@ -1,31 +1,35 @@
 import LoadingButton from "@/component/general/loadingButton";
 import CustomSnackBar from "@/component/general/snackbar";
 import { useAuthContex } from "@/context/auth";
-import { ISignInData } from "@/interface/auth";
-import { Button, Card, CardContent, Container, Stack, TextField, Typography } from "@mui/material";
+import { ISignUpData } from "@/interface/auth";
+import { Box, Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 
 export default function AuthPage() {
   const router = useRouter();
-  const { login } = useAuthContex();
+  const { signUp } = useAuthContex();
   const [snackbar, setSnackbar] = useState<{ error?: string; success?: string }>({});
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data: ISignInData = { email: e.currentTarget["email"].value, password: e.currentTarget["password"].value };
+    const data: ISignUpData = {
+      email: e.currentTarget["email"].value,
+      password: e.currentTarget["password"].value,
+      phone: e.currentTarget["phone"].value,
+      fullname: e.currentTarget["fullname"].value,
+    };
     setSnackbar({});
     setLoading(true);
-    login &&
-      login(data)
+    signUp &&
+      signUp(data)
         .then(() => {
           setSnackbar(() => ({ success: "Login sucessful" }));
           router.push("/user");
         })
         .catch((e) => {
-          console.log({ m: e.message });
           setSnackbar(() => ({ error: e.message }));
         })
         .finally(() => {
@@ -35,22 +39,27 @@ export default function AuthPage() {
   return (
     <Stack justifyContent={"center"} alignItems="center" sx={{ minHeight: "100vh" }}>
       <Card elevation={0}>
-        <Stack p={"1em"} gap={"1em"} justifyContent="center">
-          <Typography> Login to Continue or <Link href={"/signup"}>
-           <Button> Sign Up </Button>
-          
-          </Link>
-            </Typography>
-          <form onSubmit={handleLogin}>
+        <CardContent>
+          <Typography>
+            Create an account or{" "}
+            <Link href={"/"}>
+              <Button> Sign In </Button>
+            </Link>
+          </Typography>
+          <form onSubmit={handleSignup}>
             <Stack gap={"2em"}>
-              <TextField label="Email" name="email" type={"email"} />
-              <TextField label="Password" name="password" type={"password"} />
-              <LoadingButton variant="contained" loading={loading} type="submit">
-                Login
-              </LoadingButton>
+              <TextField label="Full Name" name="fullname" required />
+              <TextField label="Phone Number" name="phone" required />
+              <TextField label="Email" name="email" type={"email"} required />
+              <TextField label="Password" name="password" type={"password"} required />
+              <Box>
+                <LoadingButton loading={loading} type="submit">
+                  SignUp
+                </LoadingButton>
+              </Box>
             </Stack>
           </form>
-        </Stack>
+        </CardContent>
       </Card>
 
       <CustomSnackBar
