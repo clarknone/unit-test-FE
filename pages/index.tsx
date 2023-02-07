@@ -2,6 +2,7 @@ import LoadingButton from "@/component/general/loadingButton";
 import CustomSnackBar from "@/component/general/snackbar";
 import { useAuthContex } from "@/context/auth";
 import { ISignInData } from "@/interface/auth";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Button, Card, CardContent, Container, Stack, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -12,6 +13,21 @@ export default function AuthPage() {
   const { login } = useAuthContex();
   const [snackbar, setSnackbar] = useState<{ error?: string; success?: string }>({});
   const [loading, setLoading] = useState(false);
+  const auth0 = useAuth0();
+
+  console.log(auth0);
+
+  async function getData() {
+    const func = await auth0.getAccessTokenSilently({
+      // authorizationParams: { audience: "https://localhost:8000" },
+    });
+    const token = await auth0.getIdTokenClaims();
+    console.log({ func, token });
+  }
+
+  function loginS() {
+    auth0.loginWithRedirect();
+  }
 
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,13 +50,17 @@ export default function AuthPage() {
   };
   return (
     <Stack justifyContent={"center"} alignItems="center" sx={{ minHeight: "100vh" }}>
+      <Button onClick={getData}> Click </Button>
+      <Button onClick={loginS}> Login </Button>
       <Card elevation={0}>
         <Stack p={"1em"} gap={"1em"} justifyContent="center">
-          <Typography> Login to Continue or <Link href={"/signup"}>
-           <Button> Sign Up </Button>
-          
-          </Link>
-            </Typography>
+          <Typography>
+            {" "}
+            Login to Continue or{" "}
+            <Link href={"/signup"}>
+              <Button> Sign Up </Button>
+            </Link>
+          </Typography>
           <form onSubmit={handleLogin}>
             <Stack gap={"2em"}>
               <TextField label="Email" name="email" type={"email"} />
