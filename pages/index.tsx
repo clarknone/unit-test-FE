@@ -4,6 +4,7 @@ import { useAuthContex } from "@/context/auth";
 import { ISignInData } from "@/interface/auth";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button, Card, CardContent, Container, Stack, TextField, Typography } from "@mui/material";
+import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
@@ -21,12 +22,20 @@ export default function AuthPage() {
     const func = await auth0.getAccessTokenSilently({
       // authorizationParams: { audience: "https://localhost:8000" },
     });
+    getProfile(func).then(data=>{
+      console.log({data})
+    })
     const token = await auth0.getIdTokenClaims();
     console.log({ func, token });
   }
 
   function loginS() {
     auth0.loginWithRedirect();
+  }
+
+
+  function getProfile(token:string){
+    return axios.get("http://localhost:8000/auth/profile",{headers:{Authorization:`Bearer ${token}`}})
   }
 
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
